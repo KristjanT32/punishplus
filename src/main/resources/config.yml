@@ -1,0 +1,29 @@
+# Config for ${project.name} ${project.version}
+
+config:
+
+  # The interval in **seconds** between reminding players about their punishments.
+  punishmentReminderInterval: 300
+
+  # Should a message be broadcast to everyone when a player repays their punishment?
+  broadcastPlayerPunishmentRepaid: false
+
+customization:
+
+  # Customization options for the punishment message sent to the punished player.
+  # Placeholders are to be used **only** in the lines they are present.
+  # Placeholders are the following: %reason%, %unit%, %unitAmount%, %punishedBy%.
+
+  punishment_message:
+    title: "&b# &cYou have been &lpunished&r&c! &b#"                        # Available placeholders: none
+    reason: "&bPunishment reason: &e%reason%"                               # Available placeholders: %reason%
+    punishedBy: "&bPunishment issued by: &d%punishedBy%"                    # Available placeholders: %punishedBy%
+    unit: "&bPunishment: &ePay &dx%amount% &eof &a%unit%"                   # Available placeholders: %amount%, %unit%
+    divider: "&e====================================================="
+  repay_request:
+    title: "&b# &eREMINDER: REPAY THIS PUNISHMENT&r&e! &b#"
+    message: "&bThis is a simple reminder to repay your punishment. If you have the required items already, click the button below."
+    unit: "&dRepay punishment: x%amount% of %unit%"                         # Available placeholders: %amount%, %unit%
+    divider: "&e====================================================="
+  punishment_repaid_message:
+    message: "&b%player% &ejust repaid his punishment!"                     # Available placeholders: %player%

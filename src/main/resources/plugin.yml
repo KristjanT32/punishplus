@@ -1,0 +1,46 @@
+name: PunishPlus
+version: '${project.version}'
+main: krisapps.punishplus.PunishPlus
+api-version: 1.18
+authors: [ _TheTechGuy_ ]
+description: The way to punish your players.
+
+commands:
+  punish:
+    description: "Apply a punishment to a player."
+    usage: "/punish <type> <player> <item/unit> <amount/customAmount> <reason>"
+    permission: punishplus.administrative
+    permission-message: "Nice try, but no. This is an admin command."
+  viewpunishment:
+    description: "View a specific punishment. Requires the UUID of that punishment."
+    usage: "/viewpunishment <player> <uuid>"
+    permission: punishplus.player
+    permission-message: "Sorry, but you lack the required permissions to use this command."
+  forcenotify:
+    description: "Forces a manual notification of all punished players."
+    usage: "/forcenotify"
+    permission: punishplus.administrative
+    permission-message: "Nice try, but no. This is an admin command."
+  reloadplayers:
+    description: "Forces a reread from the data file - Unrecommended."
+    usage: "/reloadplayers"
+    permission: punishplus.administrative
+    permission-message: "Nice try, but no. This is an admin command."
+  repay:
+    description: "Repays a specified punishment for the specified player, use with /ignorestatus to silent-remove the punishment.\nThis command is usually not used manually."
+    usage: "/repay <player> <punishmentReferenceID> [/ignorestatus]"
+    permission: punishplus.player
+    permission-message: "Sorry, but you lack the required permissions to use this command."
+
+
+permissions:
+  punishplus.administrative:
+    description: "The maximum admin experience of Punish+."
+    default: op
+    children:
+      punishplus.player: true
+
+  punishplus.player:
+    description: "Standard player experience - only the commands a player would need to use."
+    default: not op
+
