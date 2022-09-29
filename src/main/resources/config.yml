@@ -8,6 +8,9 @@ config:
   # Should a message be broadcast to everyone when a player repays their punishment?
   broadcastPlayerPunishmentRepaid: false
 
+  # Should the Notifier disable itself if no players are punished? (The Notifier will start up again when someone gets punished.)
+  disableNotifierIfNoPlayersPunished: false
+
 customization:
 
   # Customization options for the punishment message sent to the punished player.

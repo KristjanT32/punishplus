@@ -1,5 +1,6 @@
 package krisapps.punishplus.events;
 
+import krisapps.punishplus.PunishPlus;
 import krisapps.punishplus.enums.PunishmentType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -13,10 +14,13 @@ public class PlayerPunishEvent extends Event {
     private String reason;
     private PunishmentType type;
 
-    public PlayerPunishEvent(Player player, String reason, PunishmentType type) {
+    private PunishPlus main;
+
+    public PlayerPunishEvent(Player player, String reason, PunishmentType type, PunishPlus main) {
         this.player = player;
         this.reason = reason;
         this.type = type;
+        this.main = main;
     }
 
     @NotNull
@@ -52,5 +56,9 @@ public class PlayerPunishEvent extends Event {
     @Override
     public HandlerList getHandlers() {
         return handlers;
+    }
+
+    public PunishPlus getMain() {
+        return main;
     }
 }

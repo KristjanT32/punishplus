@@ -19,18 +19,33 @@ commands:
   forcenotify:
     description: "Forces a manual notification of all punished players."
     usage: "/forcenotify"
-    permission: punishplus.administrative
-    permission-message: "Nice try, but no. This is an admin command."
-  reloadplayers:
-    description: "Forces a reread from the data file - Unrecommended."
-    usage: "/reloadplayers"
-    permission: punishplus.administrative
-    permission-message: "Nice try, but no. This is an admin command."
+    permission: punishplus.debug
+    permission-message: "Nice try, but no. This is a special command."
   repay:
     description: "Repays a specified punishment for the specified player, use with /ignorestatus to silent-remove the punishment.\nThis command is usually not used manually."
     usage: "/repay <player> <punishmentReferenceID> [/ignorestatus]"
     permission: punishplus.player
     permission-message: "Sorry, but you lack the required permissions to use this command."
+  modifier:
+    description: "Schedules a modification of a punishment."
+    usage: "/modifier <schedule/cancel> <player> <punishment>
+        \nschedule: <type> <modifyPeriod> <typeArgument>
+        \n cancel <all/type>"
+    permission-message: "Nice try, but no. This is an admin command."
+    permission: punishplus.administrative
+  getactivetasks:
+    description: "Shows a list of all active scheduler tasks for the plugin."
+    usage: "/getactivetasks [type]"
+    permission: punishplus.debug
+    permission-message: "Let's keep it a secret, alright? It's not like you have the required permissions anyway."
+  setnotifierinterval:
+    description: "Sets the interval for the punishment notifier. "
+    usage: "/setnotifierinterval <interval>"
+    permission: punishplus.debug
+  stopnotifier:
+    description: "Stops the active notifier task."
+    usage: "/stopnotifier"
+    permission: punishplus.debug
 
 
 permissions:
@@ -39,8 +54,14 @@ permissions:
     default: op
     children:
       punishplus.player: true
+      punishplus.debug: true
 
   punishplus.player:
     description: "Standard player experience - only the commands a player would need to use."
     default: not op
+  punishplus.debug:
+    children:
+      punishplus.player: true
+    default: op
+    description: "A permission for debug commands that have no way of altering the data."
 

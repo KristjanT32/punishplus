@@ -98,7 +98,7 @@ public class PunishCommand implements CommandExecutor, EventExecutor {
                     main.data.save(main.dataFile);
                     sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e[&aPunish&b+&e] &aSuccessfully applied punishment of type " + type + " on " + player.getName()));
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', formatter.formatPunishmentMessage(player.getName(), reason, sender.getName(), itemName, String.valueOf(amount))));
-                    Bukkit.getServer().getPluginManager().callEvent(new PlayerPunishEvent(player, reason, type));
+                    Bukkit.getServer().getPluginManager().callEvent(new PlayerPunishEvent(player, reason, type, main));
                 } catch (IOException e) {
                     sender.sendMessage(ChatColor.RED + "Could not punish player due to: " + e.getMessage() + "\nRead console for more info on this error.");
                     e.printStackTrace();

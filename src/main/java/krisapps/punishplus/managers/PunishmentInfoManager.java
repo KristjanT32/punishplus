@@ -1,46 +1,72 @@
 package krisapps.punishplus.managers;
 
 import krisapps.punishplus.PunishPlus;
+import krisapps.punishplus.enums.ModifierAction;
 
+import java.io.IOException;
 import java.util.UUID;
 
 public class PunishmentInfoManager {
 
-    private static final PunishPlus main = (PunishPlus) PunishPlus.getProvidingPlugin(PunishPlus.class);
+    PunishPlus main;
+    public PunishmentInfoManager(PunishPlus main){
+        this.main = main;
+    }
 
-    private static final String PERSISTENT_DATAFILE_PATH = "punishments.%player%.%punishment%.";
+    private final String PERSISTENT_DATAFILE_PATH = "punishments.%player%.%punishment%.";
+    private final String PERSISTENT_MODIFIER_PATH = "modifier.%player%.%punishment%.%action%.";
 
-    public static String getType(String playerUUID, UUID punishment) {
+    public String getType(String playerUUID, UUID punishment) {
         return main.data.getString(PERSISTENT_DATAFILE_PATH.replace("%player%", playerUUID).replace("%punishment%", punishment.toString()) + "type");
     }
 
-    public static String getReason(String playerUUID, UUID punishment) {
+    public String getReason(String playerUUID, UUID punishment) {
         return main.data.getString(PERSISTENT_DATAFILE_PATH.replace("%player%", playerUUID).replace("%punishment%", punishment.toString()) + "reason");
     }
 
-    public static String getUnit(String playerUUID, UUID punishment) {
+    public String getUnit(String playerUUID, UUID punishment) {
         return main.data.getString(PERSISTENT_DATAFILE_PATH.replace("%player%", playerUUID).replace("%punishment%", punishment.toString()) + "unit");
     }
 
-    public static String getUnitAmount(String playerUUID, UUID punishment) {
+    public String getUnitAmount(String playerUUID, UUID punishment) {
         return main.data.getString(PERSISTENT_DATAFILE_PATH.replace("%player%", playerUUID).replace("%punishment%", punishment.toString()) + "unitAmount");
     }
 
-    public static String getPunishmentIssuer(String playerUUID, UUID punishment) {
+    public String getPunishmentIssuer(String playerUUID, UUID punishment) {
         return main.data.getString(PERSISTENT_DATAFILE_PATH.replace("%player%", playerUUID).replace("%punishment%", punishment.toString()) + "issuer");
     }
 
-    public static String getPunishedPlayer(String playerUUID, UUID punishment) {
+    public String getPunishedPlayer(String playerUUID, UUID punishment) {
         return main.data.getString(PERSISTENT_DATAFILE_PATH.replace("%player%", playerUUID).replace("%punishment%", punishment.toString()) + "player");
     }
 
-    public static String getCreationDate(String playerUUID, UUID punishment) {
+    public String getCreationDate(String playerUUID, UUID punishment) {
         return main.data.getString(PERSISTENT_DATAFILE_PATH.replace("%player%", playerUUID).replace("%punishment%", punishment.toString()) + "createdOn");
     }
 
-    public static boolean punishmentExists(String playerUUID, UUID punishment) {
+    public boolean punishmentExists(String playerUUID, UUID punishment) {
         return main.data.getConfigurationSection(PERSISTENT_DATAFILE_PATH.replace("%player%", playerUUID).replace("%punishment%", punishment.toString())) != null;
     }
 
+    public void setPunishment(UUID playerUUID, UUID punishment, int value){
+        main.data.set(PERSISTENT_DATAFILE_PATH.replace("%player%", playerUUID.toString()).replace("%punishment%", punishment.toString()) + "unitAmount", value);
+        try {
+            main.data.save(main.dataFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
+    public void voidPunishment(UUID playerUUID, UUID punishment) {
+        main.data.set(PERSISTENT_DATAFILE_PATH.replace("%player%", playerUUID.toString()).replace("%punishment%", punishment.toString()), null);
+        try {
+            main.data.save(main.dataFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int getPunishmentModifierTask(String player, UUID punishment, ModifierAction action) {
+        return main.data.getInt(PERSISTENT_MODIFIER_PATH.replace("%player%", player.toString()).replace("%punishment%", punishment.toString()).replace("%action%", action.name()) + "taskIdentifier");
+    }
 }

@@ -1,12 +1,11 @@
 package krisapps.punishplus;
 
 import krisapps.punishplus.commands.*;
-import krisapps.punishplus.commands.tab.PunishCommandTab;
-import krisapps.punishplus.commands.tab.RepayCommandTab;
-import krisapps.punishplus.commands.tab.ViewPunishmentTab;
+import krisapps.punishplus.commands.tab.*;
+import krisapps.punishplus.events.OnServerReloadEvent;
 import krisapps.punishplus.events.PlayerPunishEvent;
 import krisapps.punishplus.events.PlayerPunishmentRepayEvent;
-import krisapps.punishplus.managers.UnresolvedPunishmentNotifier;
+import krisapps.punishplus.managers.scheduler.UnresolvedPunishmentNotifier;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -41,13 +40,18 @@ public final class PunishPlus extends JavaPlugin {
         getCommand("punish").setExecutor(new PunishCommand(this));
         getCommand("viewpunishment").setExecutor(new ViewPunishmentCommand(this));
         getCommand("forcenotify").setExecutor(new ForceNotifyCommand(this));
-        getCommand("reloadplayers").setExecutor(new ForceReloadPunishments(this));
         getCommand("repay").setExecutor(new RepayCommand(this));
+        getCommand("modifier").setExecutor(new SchedulePunishmentChangeCommand(this));
+        getCommand("getactivetasks").setExecutor(new GetActiveTasksCommand(this));
+        getCommand("setnotifierinterval").setExecutor(new SetNotifierIntervalCommand(this));
+        getCommand("stopnotifier").setExecutor(new StopNotifierCommand(this));
 
 
         getCommand("punish").setTabCompleter(new PunishCommandTab());
         getCommand("viewpunishment").setTabCompleter(new ViewPunishmentTab(this));
         getCommand("repay").setTabCompleter(new RepayCommandTab(this));
+        getCommand("modifier").setTabCompleter(new SchedulePunishmentChangeTab(this));
+        getCommand("getactivetasks").setTabCompleter(new GetActiveTasksTab());
 
         // Events
 
@@ -56,6 +60,9 @@ public final class PunishPlus extends JavaPlugin {
 
         Bukkit.getServer().getPluginManager().registerEvents(new UnresolvedPunishmentNotifier(this), this);
         UnresolvedPunishmentNotifier.startNotifier(this);
+
+        // EventHandlers
+        Bukkit.getServer().getPluginManager().registerEvents(new OnServerReloadEvent(this), this);
 
     }
 

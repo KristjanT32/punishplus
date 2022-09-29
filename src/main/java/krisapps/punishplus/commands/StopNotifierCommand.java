@@ -8,20 +8,20 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
-public class ForceNotifyCommand implements CommandExecutor {
+public class StopNotifierCommand implements CommandExecutor {
 
     PunishPlus main;
-
-    public ForceNotifyCommand(PunishPlus main) {
+    public StopNotifierCommand(PunishPlus main){
         this.main = main;
     }
 
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        //Syntax: /forcenotify
-        sender.sendMessage(ChatColor.YELLOW + "Forcing UPN routine...");
-        UnresolvedPunishmentNotifier.notifyTrackedPlayers(main);
-        sender.sendMessage(ChatColor.GREEN + "Routine force request sent.");
+        // Syntax: /stopnotifier
+
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e[&aPunish&b+ &b&lSchedulers&e]: &cYou have now manually disabled the notifier task. It will automatically be re-enabled once a player is punished."));
+        UnresolvedPunishmentNotifier.stopNotifier(main);
 
         return true;
     }

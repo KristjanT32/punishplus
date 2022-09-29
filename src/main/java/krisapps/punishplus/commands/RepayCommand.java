@@ -1,12 +1,14 @@
 package krisapps.punishplus.commands;
 
 import krisapps.punishplus.PunishPlus;
+import krisapps.punishplus.enums.ModifierAction;
 import krisapps.punishplus.events.PlayerPunishmentRepayEvent;
 import krisapps.punishplus.exceptions.InvalidPunishmentItemException;
 import krisapps.punishplus.exceptions.PlayerOfflineException;
 import krisapps.punishplus.managers.MessageFormattingManager;
 import krisapps.punishplus.managers.PunishmentInfoManager;
-import krisapps.punishplus.managers.UnresolvedPunishmentNotifier;
+import krisapps.punishplus.managers.scheduler.PunishmentModifier;
+import krisapps.punishplus.managers.scheduler.UnresolvedPunishmentNotifier;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -41,7 +43,7 @@ public class RepayCommand implements CommandExecutor, EventExecutor {
         MessageFormattingManager mfm = new MessageFormattingManager(main.config);
         if (args.length == 3) {
             if (repay(args[0], args[1], args[2].equals("/ignorestatus") && args.length == 3 && sender.hasPermission("punishplus.administrative"))) {
-                Bukkit.getServer().getPluginManager().callEvent(new PlayerPunishmentRepayEvent(Bukkit.getPlayer(UUID.fromString(args[0])), UUID.fromString(args[1])));
+                Bukkit.getServer().getPluginManager().callEvent(new PlayerPunishmentRepayEvent(Bukkit.getPlayer(UUID.fromString(args[0])), UUID.fromString(args[1]), main));
                 sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a&lCongratulations! You've successfully repaid your punishment. &a&lPunishment has been revoked."));
                 if (main.config.getBoolean("config.broadcastPlayerPunishmentRepaid")) {
                     Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', mfm.genericFormat(Bukkit.getPlayer(UUID.fromString(args[0])).getName())));
@@ -51,7 +53,7 @@ public class RepayCommand implements CommandExecutor, EventExecutor {
             }
         } else if (args.length == 2) {
             if (repay(args[0], args[1], false)) {
-                Bukkit.getServer().getPluginManager().callEvent(new PlayerPunishmentRepayEvent(Bukkit.getPlayer(UUID.fromString(args[0])), UUID.fromString(args[1])));
+                Bukkit.getServer().getPluginManager().callEvent(new PlayerPunishmentRepayEvent(Bukkit.getPlayer(UUID.fromString(args[0])), UUID.fromString(args[1]), main));
                 sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a&lCongratulations! You've successfully repaid your punishment. &a&lPunishment has been revoked."));
                 if (main.config.getBoolean("config.broadcastPlayerPunishmentRepaid")) {
                     Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', mfm.genericFormat(Bukkit.getPlayer(UUID.fromString(args[0])).getName())));
@@ -91,7 +93,11 @@ public class RepayCommand implements CommandExecutor, EventExecutor {
     public void removePunishment(ItemStack itemsToTake, String player, String punishment) {
 
         Bukkit.getPlayer(UUID.fromString(player)).getInventory().removeItem(itemsToTake);
+        for (String modifierTaskEntry: main.data.getConfigurationSection("modifier." + player + "." + punishment).getKeys(false)){
+            PunishmentModifier.cancelActiveModifierTask(main.data.getInt("modifier." + player + "." + punishment + "." + modifierTaskEntry + ".taskIdentifier"));
+        }
 
+        main.data.set("modifier." + player + "." + punishment, null);
         main.data.set("punishments." + player + "." + punishment, null);
         UnresolvedPunishmentNotifier.untrackPlayer(UUID.fromString(player), main);
 
@@ -116,6 +122,8 @@ public class RepayCommand implements CommandExecutor, EventExecutor {
 
     private boolean repay(String player, String punishmentReferenceID, @Nullable boolean ignoreStatus) {
 
+        PunishmentInfoManager pim = new PunishmentInfoManager(main);
+
         if (main.data.getConfigurationSection("punishments." + player + "." + punishmentReferenceID) == null) {
             return false;
         }
@@ -131,11 +139,11 @@ public class RepayCommand implements CommandExecutor, EventExecutor {
             }
         }
 
-        String specifiedItem = PunishmentInfoManager.getUnit(player, UUID.fromString(punishmentReferenceID));
+        String specifiedItem = pim.getUnit(player, UUID.fromString(punishmentReferenceID));
         Material itemMaterial;
         ItemStack item;
 
-        int amount = Integer.parseInt(PunishmentInfoManager.getUnitAmount(player, UUID.fromString(punishmentReferenceID)));
+        int amount = Integer.parseInt(pim.getUnitAmount(player, UUID.fromString(punishmentReferenceID)));
 
         if (isValidItem(specifiedItem)) {
             itemMaterial = Material.valueOf(specifiedItem.toUpperCase());

@@ -1,5 +1,6 @@
 package krisapps.punishplus.events;
 
+import krisapps.punishplus.PunishPlus;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -13,10 +14,12 @@ public class PlayerPunishmentRepayEvent extends Event {
 
     private final Player player;
     private final UUID punishmentUUID;
+    private PunishPlus main;
 
-    public PlayerPunishmentRepayEvent(Player p, UUID punishmentUUID) {
+    public PlayerPunishmentRepayEvent(Player p, UUID punishmentUUID, PunishPlus main) {
         this.player = p;
         this.punishmentUUID = punishmentUUID;
+        this.main = main;
     }
 
     @NotNull
@@ -36,5 +39,9 @@ public class PlayerPunishmentRepayEvent extends Event {
     @Override
     public HandlerList getHandlers() {
         return handlers;
+    }
+
+    public PunishPlus getMain() {
+        return main;
     }
 }

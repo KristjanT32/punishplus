@@ -25,17 +25,18 @@ public class ViewPunishmentCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         //Syntax: /viewpunishment <player> <uuid>
         MessageFormattingManager mfm = new MessageFormattingManager(main.config);
+        PunishmentInfoManager pim = new PunishmentInfoManager(main);
 
         if (args.length == 2) {
             if (main.data.get("punishments." + Bukkit.getPlayer(args[0]).getUniqueId()) != null) {
                 if (main.data.getConfigurationSection("punishments." + Bukkit.getPlayer(args[0]).getUniqueId()).getKeys(false).contains(args[1])) {
                     sender.sendMessage(ChatColor.translateAlternateColorCodes('&', mfm.formatInfoMessage(
                                     Bukkit.getPlayer(args[0]).getName(),
-                                    PunishmentInfoManager.getReason(Bukkit.getPlayer(args[0]).getUniqueId().toString(), UUID.fromString(args[1])),
-                                    PunishmentInfoManager.getPunishmentIssuer(Bukkit.getPlayer(args[0]).getUniqueId().toString(), UUID.fromString(args[1])),
-                                    PunishmentInfoManager.getUnit(Bukkit.getPlayer(args[0]).getUniqueId().toString(), UUID.fromString(args[1])),
-                                    PunishmentInfoManager.getUnitAmount(Bukkit.getPlayer(args[0]).getUniqueId().toString(), UUID.fromString(args[1])),
-                            PunishmentInfoManager.getCreationDate(Bukkit.getPlayer(args[0]).getUniqueId().toString(), UUID.fromString(args[1]))
+                            pim.getReason(Bukkit.getPlayer(args[0]).getUniqueId().toString(), UUID.fromString(args[1])),
+                            pim.getPunishmentIssuer(Bukkit.getPlayer(args[0]).getUniqueId().toString(), UUID.fromString(args[1])),
+                            pim.getUnit(Bukkit.getPlayer(args[0]).getUniqueId().toString(), UUID.fromString(args[1])),
+                            pim.getUnitAmount(Bukkit.getPlayer(args[0]).getUniqueId().toString(), UUID.fromString(args[1])),
+                            pim.getCreationDate(Bukkit.getPlayer(args[0]).getUniqueId().toString(), UUID.fromString(args[1]))
                             )
                     ));
                 } else {
