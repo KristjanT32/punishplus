@@ -45,6 +45,7 @@ public final class PunishPlus extends JavaPlugin {
         getCommand("getactivetasks").setExecutor(new GetActiveTasksCommand(this));
         getCommand("setnotifierinterval").setExecutor(new SetNotifierIntervalCommand(this));
         getCommand("stopnotifier").setExecutor(new StopNotifierCommand(this));
+        getCommand("getdebuginfo").setExecutor(new GetCoreDebugInfoCommand(this));
 
 
         getCommand("punish").setTabCompleter(new PunishCommandTab());
@@ -52,6 +53,7 @@ public final class PunishPlus extends JavaPlugin {
         getCommand("repay").setTabCompleter(new RepayCommandTab(this));
         getCommand("modifier").setTabCompleter(new SchedulePunishmentChangeTab(this));
         getCommand("getactivetasks").setTabCompleter(new GetActiveTasksTab());
+        getCommand("getdebuginfo").setTabCompleter(new GetDebugInfoTab());
 
         // Events
 

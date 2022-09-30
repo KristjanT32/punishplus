@@ -37,14 +37,41 @@ public class UnresolvedPunishmentNotifier implements Listener {
         interval = main.config.getInt("config.punishmentReminderInterval");
     }
 
+    // Event Handling
+    @EventHandler
+    public void OnPlayerPunished(PlayerPunishEvent e) {
+        if (!isRunning){
+            startNotifier(e.getMain());
+            for (Player p: Bukkit.getServer().getOnlinePlayers()){
+                if (p.isOp()){
+                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e[&aPunish&b+ &b&lSchedulers&e]: &aNotifier has been (re-)enabled."));
+                }
+            }
+        }
+        trackPlayer(e.getPlayer().getUniqueId(), e.getMain());
+        refreshTrackerList(e.getMain());
+    }
+
+    @EventHandler
+    public void OnPlayerPunishmentRepaid(PlayerPunishmentRepayEvent e) {
+        untrackPlayer(e.getPlayer().getUniqueId(), e.getMain());
+        refreshTrackerList(e.getMain());
+    }
+
+    // Core Functionality
+
     public static void trackPlayer(UUID playerUUID, PunishPlus main) {
         trackedPlayersList.add(playerUUID);
-        main.getLogger().info("[Punish+] New player added to track: " + playerUUID);
+        if (main.config.getBoolean("logging.logNotifier")) {
+            main.getLogger().info("[Punish+] New player added to track: " + playerUUID);
+        }
         refreshTrackerList(main);
     }
 
     public static void untrackPlayer(UUID playerUUID, PunishPlus main) {
-        main.getLogger().info("[Punish+] Removing player [" + playerUUID + "] ...");
+        if (main.config.getBoolean("logging.logNotifier")) {
+            main.getLogger().info("[Punish+] Removing player [" + playerUUID + "] ...");
+        }
         trackedPlayersList.remove(playerUUID);
         main.data.set("coredata.tracker.trackerList", main.data.getList("coredata.tracker.trackerList").remove(playerUUID));
         try {
@@ -53,18 +80,16 @@ public class UnresolvedPunishmentNotifier implements Listener {
             main.getLogger().info("[Punish+] Failed to remove player: " + playerUUID);
             throw new RuntimeException(e);
         }
-        main.getLogger().info("[Punish+] Player removed, restarting notifier...");
+        if (main.config.getBoolean("logging.logNotifier")) {
+            main.getLogger().info("[Punish+] Player removed, restarting notifier...");
+        }
         restartNotifier(main);
     }
 
-    // Used for the /forcenotify command.
-    public static void notifyTrackedPlayers(PunishPlus main) {
-        main.getLogger().info("[Punish+] Received a force notify request.");
-        Bukkit.getServer().getScheduler().runTask(main, new Notifier(UnresolvedPunishmentNotifier.trackedPlayersList, main));
-    }
-
     public static void refreshTrackerList(PunishPlus main) {
-        main.getLogger().info("Refreshing tracker list. Original: " + Arrays.toString(trackedPlayersList.toArray()));
+        if (main.config.getBoolean("logging.logNotifier")) {
+            main.getLogger().info("Refreshing tracker list. Original: " + Arrays.toString(trackedPlayersList.toArray()));
+        }
         if (trackedPlayersList.size() > 0) {
             if ((ArrayList<String>) main.data.getList("coredata.tracker.trackerList") == null) { return; }
             if (!trackedPlayersList.equals(main.data.getList("coredata.tracker.trackerList"))){
@@ -87,8 +112,19 @@ public class UnresolvedPunishmentNotifier implements Listener {
                 trackedPlayersList.add(UUID.fromString(trackedPlayerUUID));
             }
         }
-        main.getLogger().info("Tracker list refreshed>. Now: " + Arrays.toString(Notifier.getTrackedPlayers().toArray()));
+        if (main.config.getBoolean("logging.logNotifier")) {
+            main.getLogger().info("Tracker list refreshed>. Now: " + Arrays.toString(Notifier.getTrackedPlayers().toArray()));
+        }
 
+    }
+
+    // Manual Functions
+
+    public static void notifyTrackedPlayers(PunishPlus main) {
+        if (main.config.getBoolean("logging.logNotifier")) {
+            main.getLogger().info("[Punish+] Received a force notify request.");
+        }
+        Bukkit.getServer().getScheduler().runTask(main, new Notifier(UnresolvedPunishmentNotifier.trackedPlayersList, main));
     }
 
     public static void startNotifier(PunishPlus main) {
@@ -96,12 +132,16 @@ public class UnresolvedPunishmentNotifier implements Listener {
 
         Bukkit.getServer().getScheduler().cancelTask(notifierTask);
         if (trackedPlayersList.size() == 0) {
-            main.getLogger().info("[Punish+] Tracker list not found. Refreshing...");
+            if (main.config.getBoolean("logging.logNotifier")) {
+                main.getLogger().info("[Punish+] Tracker list not found. Refreshing...");
+            }
             refreshTrackerList(main);
         }
 
         notifierTask = Bukkit.getScheduler().scheduleAsyncRepeatingTask(main, new Notifier(trackedPlayersList, main), 40, 20L * interval);
-        main.getLogger().info("[Punish+] Started new punishment notifier with TaskID " + notifierTask + " and delay of " + interval + " seconds.");
+        if (main.config.getBoolean("logging.logNotifier")) {
+            main.getLogger().info("[Punish+] Started new punishment notifier with TaskID " + notifierTask + " and delay of " + interval + " seconds.");
+        }
         isRunning = true;
     }
 
@@ -109,13 +149,17 @@ public class UnresolvedPunishmentNotifier implements Listener {
         Bukkit.getServer().getScheduler().cancelTask(notifierTask);
         UnresolvedPunishmentNotifier.trackedPlayersList = trackedPlayersList;
         notifierTask = Bukkit.getScheduler().scheduleAsyncRepeatingTask(main, new Notifier(trackedPlayersList, main), 20 * 10L, 20L * interval);
-        main.getLogger().info("[Punish+] Started new punishment notifier with TaskID " + notifierTask + " and delay of " + interval * 20 + " seconds.");
+        if (main.config.getBoolean("logging.logNotifier")) {
+            main.getLogger().info("[Punish+] Started new punishment notifier with TaskID " + notifierTask + " and delay of " + interval * 20 + " seconds.");
+        }
         isRunning = true;
     }
 
     public static void stopNotifier(PunishPlus main) {
         Bukkit.getScheduler().cancelTask(notifierTask);
-        main.getLogger().info("[PunishmentWatcher]: Stopped punishment notifier with TaskID " + notifierTask);
+        if (main.config.getBoolean("logging.logNotifier")) {
+            main.getLogger().info("[PunishmentWatcher]: Stopped punishment notifier with TaskID " + notifierTask);
+        }
         isRunning = false;
     }
 
@@ -125,24 +169,15 @@ public class UnresolvedPunishmentNotifier implements Listener {
         startNotifier(main);
     }
 
-    @EventHandler
-    public void OnPlayerPunished(PlayerPunishEvent e) {
-        if (!isRunning){
-            startNotifier(e.getMain());
-            for (Player p: Bukkit.getServer().getOnlinePlayers()){
-                if (p.isOp()){
-                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e[&aPunish&b+ &b&lSchedulers&e]: &aNotifier has been (re-)enabled."));
-                }
-            }
-        }
-        trackPlayer(e.getPlayer().getUniqueId(), e.getMain());
-        refreshTrackerList(e.getMain());
+
+
+    // Getters
+    public static ArrayList<UUID> getTrackedPlayersList() {
+        return trackedPlayersList;
     }
 
-    @EventHandler
-    public void OnPlayerPunishmentRepaid(PlayerPunishmentRepayEvent e) {
-        untrackPlayer(e.getPlayer().getUniqueId(), e.getMain());
-        refreshTrackerList(e.getMain());
+    public static boolean isRunning() {
+        return isRunning;
     }
 
     static class Notifier implements Runnable {
@@ -172,18 +207,24 @@ public class UnresolvedPunishmentNotifier implements Listener {
             if (trackedPlayersList.size() > 0) {
                 for (UUID player: trackedPlayersList) {
                     if (Bukkit.getPlayer(player) == null) {
-                        main.getLogger().info("[PunishmentWatcher]: Player offline, skipping: " + player);
+                        if (main.config.getBoolean("logging.logNotifier")) {
+                            main.getLogger().info("[PunishmentWatcher]: Player offline, skipping: " + player);
+                        }
                         continue;
                     }
 
                     // If there are no punishments left for this player, untrack them and skip.
                     if (main.data.getConfigurationSection("punishments." + player).getKeys(false).size() == 0) {
-                        main.getLogger().info("[PunishmentWatcher]: No active punishments are left for: " + Bukkit.getPlayer(player).getName());
+                        if (main.config.getBoolean("logging.logNotifier")) {
+                            main.getLogger().info("[PunishmentWatcher]: No active punishments are left for: " + Bukkit.getPlayer(player).getName());
+                        }
                         untrackPlayer(player, main);
                         continue;
                     }
 
-                    main.getLogger().info("[PunishmentWatcher]: Found " + main.data.getConfigurationSection("punishments." + player).getKeys(false).size() + " active punishments to report for " + Bukkit.getPlayer(player).getName());
+                    if (main.config.getBoolean("logging.logNotifier")) {
+                        main.getLogger().info("[PunishmentWatcher]: Found " + main.data.getConfigurationSection("punishments." + player).getKeys(false).size() + " active punishments to report for " + Bukkit.getPlayer(player).getName());
+                    }
 
                     // Loop through player's punishment records, notify.
                     for (String field : main.data.getConfigurationSection("punishments." + player).getKeys(false)) {
@@ -200,9 +241,13 @@ public class UnresolvedPunishmentNotifier implements Listener {
                 }
 
             } else {
-                main.getLogger().info("[PunishmentWatcher]: No punishment records have been found (this usually means there are no punished players yet).");
+                if (main.config.getBoolean("logging.logNotifier")) {
+                    main.getLogger().info("[PunishmentWatcher]: No punishment records have been found (this usually means there are no punished players yet).");
+                }
                 if (main.config.getBoolean("config.disableNotifierIfNoPlayersPunished")) {
-                    main.getLogger().info("[PunishmentWatcher]: Notifier will be disabled until a player is punished.");
+                    if (main.config.getBoolean("logging.logNotifier")) {
+                        main.getLogger().info("[PunishmentWatcher]: Notifier will be disabled until a player is punished.");
+                    }
                     stopNotifier(main);
                 }else{
                     refreshTrackerList(main);

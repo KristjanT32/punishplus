@@ -11,6 +11,11 @@ config:
   # Should the Notifier disable itself if no players are punished? (The Notifier will start up again when someone gets punished.)
   disableNotifierIfNoPlayersPunished: false
 
+logging:
+
+  # Should the Notifier log its actions? (that may help diagnose possible errors)
+  logNotifier: false
+
 customization:
 
   # Customization options for the punishment message sent to the punished player.

@@ -54,8 +54,9 @@ public class GetActiveTasksCommand implements CommandExecutor {
             sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
                     "&e[ &a&lNotifier &r&bTask &e] &b#TASKID &d"
                             + UnresolvedPunishmentNotifier.getNotifierTask()
-                            + "&e is running with interval of &ds"
+                            + "&e is running with interval of &d"
                             + UnresolvedPunishmentNotifier.getInterval()
+                            + "s"
             ));
 
         }else{

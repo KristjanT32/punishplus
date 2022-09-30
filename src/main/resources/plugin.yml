@@ -46,6 +46,10 @@ commands:
     description: "Stops the active notifier task."
     usage: "/stopnotifier"
     permission: punishplus.debug
+  getdebuginfo:
+    description: "Shows information of the specified type."
+    usage: "/getdebuginfo <type>"
+    permission: punishplus.debug
 
 
 permissions:

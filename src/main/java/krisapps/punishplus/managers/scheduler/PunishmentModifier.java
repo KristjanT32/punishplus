@@ -18,11 +18,13 @@ import java.util.UUID;
 
 public class PunishmentModifier {
     private static int modifierTask;
-    private static BukkitScheduler scheduler;
     private static PunishPlus main;
 
-    public static void startModifierTask(PunishPlus main, long delayInTicks, ModifierAction action, @Nullable int value, @Nullable DirectAction directAction, UUID player, UUID punishment){
-        scheduler = Bukkit.getScheduler();
+
+    //TODO: Add proper modifier cancellation logic.
+
+    public static void startModifierTask(PunishPlus main, long delayInTicks, ModifierAction action, int value, @Nullable DirectAction directAction, UUID player, UUID punishment){
+        BukkitScheduler scheduler = Bukkit.getScheduler();
         PunishmentModifier.main = main;
 
         action.setNewValue(value);
@@ -33,7 +35,7 @@ public class PunishmentModifier {
             PunishmentInfoManager pim = new PunishmentInfoManager(main);
 
             long startTime = System.currentTimeMillis();
-            long endTime = 0;
+            long endTime;
 
             log(main, "[SPMC/#" + punishment + "]: Start procedure");
 
@@ -223,6 +225,14 @@ public class PunishmentModifier {
                 p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e[&aPunish&b+ &b&lSchedulers&e]: &aRescheduling completed."));
             }
         }
+    }
+
+    public static int getModifierTask() {
+        return modifierTask;
+    }
+
+    public static boolean hasModifiersRunning(PunishPlus main){
+        return main.data.getConfigurationSection("coredata.modifier").getKeys(false).size() > 0;
     }
 
     static void log(PunishPlus main, String msg){
